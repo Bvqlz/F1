@@ -11,6 +11,8 @@ public:
     ~Response();
 
     static void createResponse(const std::string& jsonString);
+    static void createResponse2(const std::string& jsonString);
+    static void createResponse3(const std::string& jsonString);
 
 private:
 
