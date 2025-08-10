@@ -6,18 +6,26 @@ size_t Request::callbackFunc(void *contents, size_t size, size_t nmemb, void *us
     return size * nmemb;
 }
 
+std::string Request::buildURL(const int& year, const std::string& endpoint) const
+{
+    std::stringstream ss;
+    ss << baseURL << year << "/" << endpoint;
+    return ss.str();
+}
+
 Request::Request(): curl(curl_easy_init()) {}
 
 Request::~Request() {curl_easy_cleanup(curl);}
 
 
-std::string Request::createRequest(const std::string& url) const
+std::string Request::createRequest(const int& year, const std::string& endpoint) const
 {
     if (!curl)
     {
         std::cerr << "curl_easy_init failed" << std::endl;
     }
 
+    const std::string url = buildURL(year, endpoint);
     std::string response;
 
     try
