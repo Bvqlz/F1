@@ -18,14 +18,14 @@ Request::Request(): curl(curl_easy_init()) {}
 Request::~Request() {curl_easy_cleanup(curl);}
 
 
-std::string Request::createRequest(const int& year, const std::string& endpoint) const
+std::string Request::createRequest(const std::string& url) const
 {
     if (!curl)
     {
         std::cerr << "curl_easy_init failed" << std::endl;
     }
 
-    const std::string url = buildURL(year, endpoint);
+    //const std::string url = buildURL(year, endpoint);
     std::string response;
 
     try

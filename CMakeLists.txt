@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(F1 main.cpp
         src/Response.cpp
         src/Request.cpp
+        src/Pages.cpp
 )
 
 find_package(nlohmann_json CONFIG REQUIRED)

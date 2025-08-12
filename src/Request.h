@@ -11,11 +11,11 @@ public:
     Request();
     ~Request();
 
-    std::string createRequest(const int& year, const std::string& endpoint) const;
+    [[nodiscard]] std::string createRequest(const std::string& url) const;
 
 private:
     std::string baseURL = "https://api.jolpi.ca/ergast/f1/";
     CURL* curl;
     static size_t callbackFunc(void *contents, size_t size, size_t nmemb, void *userp);
-    std::string buildURL(const int& year, const std::string& endpoint) const;
+    [[nodiscard]] std::string buildURL(const int& year, const std::string& endpoint) const;
 };
