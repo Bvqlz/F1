@@ -1,16 +1,35 @@
-
-#include "Request.h"
 #ifdef _WIN32 // curl and ftx have a contradiction using a certain key word.
 #undef DOUBLE
 #endif
-#include "Response.h"
 #include "Pages.h"
 
-void Pages::ShowMenu() const {
+    template<typename T>
+    GenData Pages::call(const std::string& S, std::string& header)
+    {
+        const Request request;
+        std::unique_ptr<ResBuild> processor;
+        std::string jsonResponse = request.createRequest(S);
+        auto headerJson = json::parse(jsonResponse);
+        const auto& standingsTable = headerJson["MRData"]["StandingsTable"];
+        if (currentType == standingType::Driver) // if else blocks and ternaries that have this def, look like they default to this but the toggle changes this.
+        {
+            header = standingsTable["season"].get<std::string>() + " Drivers Championship - Round " + standingsTable["round"].get<std::string>();
+        }
+        else
+        {
+            header = standingsTable["season"].get<std::string>() + " Constructors Championship - Round " + standingsTable["round"].get<std::string>();
+        }
+
+        processor = std::make_unique<T>();
+        const GenData results = processor->process(jsonResponse);
+        return results;
+    }
+
+void Pages::ShowMenu(){
     auto screen = ScreenInteractive::TerminalOutput();
 
     const std::vector<std::string> entries = {
-        "Open Input Form",
+        "Find a standing",
         "Exit",
     };
     int selected = 0;
@@ -34,17 +53,22 @@ void Pages::ShowMenu() const {
     screen.Loop(renderer);
 }
 
-void Pages::ShowInput() const
+void Pages::ShowInput()
 {
     auto screen = ScreenInteractive::TerminalOutput();
 
-    std::string seasonYear; // can this block strings be moved somewhere else (perhaps class)
+    std::string seasonYear;
     std::string url;
-    const std::string endpoint = "/driverstandings/"; // ternary for this ? Help decide which endpoint.
+    int selected = static_cast<int>(currentType);
 
     Component seasonInput = Input(&seasonYear, "Enter a season...");
+    Component standingCheck = Toggle(&options, &selected);
     Component backBtn = Button("Back to Menu", screen.ExitLoopClosure(), ButtonOption::Ascii());
     Component submitBtn = Button("Submit", [&] {
+
+        currentType = static_cast<standingType>(selected);
+        std::string endpoint = (currentType == standingType::Driver) ? driverBase : constBase;
+        url = base + seasonYear + endpoint;
         // this calls our next function, passes built endpoint to display respective year standings. Our Standing page returns a bool if we want to go straight to menu
         if (ShowResults(url)) { screen.ExitLoopClosure()(); }
     }, ButtonOption::Ascii());
@@ -56,15 +80,15 @@ void Pages::ShowInput() const
 
     const auto vertComp = Container::Vertical({
         seasonInput,
+        standingCheck,
         buttons,
     });
 
     const auto renderer = Renderer(vertComp, [&] {
-        url = base + seasonYear + endpoint;
         return vbox({
             hbox(text(" Season Year : "), seasonInput->Render()),
             separator(),
-            text("Created endpoint: " + url),
+            hbox(text("Select a standing: "), standingCheck->Render()),
             separator(),
             hbox({
                 submitBtn->Render(),
@@ -76,24 +100,29 @@ void Pages::ShowInput() const
     screen.Loop(renderer);
 }
 
-bool Pages::ShowResults(const std::string &url) const
+bool Pages::ShowResults(const std::string &url)
 {
     auto screen = ScreenInteractive::TerminalOutput();
     bool menuBack = false;
-
-    const Request request; // can we create a template of this? Seems generic enough
-    std::unique_ptr<ResBuild> processor;
-    std::string jsonResponse = request.createRequest(url);
-    auto headerJson = json::parse(jsonResponse);
-    const std::string header = headerJson["MRData"]["StandingsTable"]["season"].get<std::string>() + " Drivers Championship - Round " + headerJson["MRData"]["StandingsTable"]["round"].get<std::string>();
-    processor = std::make_unique<DriverStandings>();
-    const GenData results = processor->process(jsonResponse);
+    std::string header;
+    const GenData results = (currentType == standingType::Driver) ? call<DriverStandings>(url, header) : call<ConstructorStandings>(url, header);
 
     std::vector<std::string> standingsList;
-    for (const auto& driver : results) {
-        standingsList.push_back(
-            driver.position + ". " + driver.name + " (" + driver.team + ") - " + driver.points + " pts"
-        );
+    if (currentType == standingType::Driver) // feel like there is a better approach to this.
+        {
+        for (const auto& standing : results)
+        {
+            std::string line = standing.position + ". " + standing.name + " (" + standing.team.value() + ") - " + standing.points + " pts";
+            standingsList.push_back(line);
+        }
+    }
+    else
+    {
+        for (const auto& standing : results)
+        {
+            std::string line = standing.position + ". " + standing.name + " - " + standing.points + " pts";
+            standingsList.push_back(line);
+        }
     }
 
     int selected = 0;

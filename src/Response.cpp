@@ -1,8 +1,5 @@
 #include "Response.h"
 
-
-
-
 GenData DriverStandings::process(const std::string &jsonString) const
 {
     GenData driverStandings;
@@ -24,23 +21,40 @@ GenData DriverStandings::process(const std::string &jsonString) const
     return driverStandings;
 }
 
-GenData ConstructorStandings::process(const std::string &jsonString) const
+GenData ConstructorStandings::process(const std::string& jsonString) const
 {
+    GenData constructorStandings;
     auto responseJson = json::parse(jsonString);
-    const auto& resTeam = responseJson["MRData"]["StandingsTable"];
+    const auto& resConst = responseJson["MRData"]["StandingsTable"];
 
-    std::cout << "[-- " << resTeam["season"].get<std::string>() << " Constructors Championship - Round "
-    << resTeam["round"].get<std::string>() << " --]" << std::endl;
-
-    //responseJson["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"]
-
-    for (const auto& team : resTeam["StandingsLists"][0]["ConstructorStandings"])
+    for (const auto& constructor : resConst["StandingsLists"][0]["ConstructorStandings"])
     {
-        std::cout << "[ " << team["position"].get<std::string>() << ". "
-        << team["Constructor"]["name"].get<std::string>() << " | "
-        << team["points"].get<std::string>() << " pts | "
-        << team["Constructor"]["nationality"].get<std::string>() << "]" << std::endl;;
+        constructorStandings.push_back({
+            constructor["position"].get<std::string>(),
+            constructor["Constructor"]["name"].get<std::string>(),
+            constructor["points"].get<std::string>(),
+            std::nullopt,
+            constructor["Constructor"]["constructorId"].get<std::string>(),
+        });
     }
+
+    return constructorStandings;
+}
+
+driverDetails ResBuild::DriverDetails(const std::string & jsonString) const
+{
+    driverDetails driverData;
+    auto responseJson = json::parse(jsonString);
+    const auto& driver = responseJson["MRData"]["DriverTable"]["Drivers"][0];
+
+    driverData.push_back({
+        driver["permanentNumber"].get<std::string>(),
+        driver["dateOfBirth"].get<std::string>(),
+        driver["url"].get<std::string>(),
+        driver["nationality"].get<std::string>(),
+    });
+
+    return driverData;
 }
 
 GenData RaceResults::process(const std::string &jsonString) const
@@ -62,18 +76,4 @@ GenData RaceResults::process(const std::string &jsonString) const
     }
 }
 
-driverDetails ResBuild::DriverDetails(const std::string & jsonString) const
-{
-    driverDetails driverData;
-    auto responseJson = json::parse(jsonString);
-    const auto& driver = responseJson["MRData"]["DriverTable"]["Drivers"][0];
 
-    driverData.push_back({
-        driver["permanentNumber"].get<std::string>(),
-        driver["dateOfBirth"].get<std::string>(),
-        driver["url"].get<std::string>(),
-        driver["nationality"].get<std::string>(),
-    });
-
-    return driverData;
-}
