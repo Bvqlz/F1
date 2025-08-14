@@ -7,6 +7,7 @@
 #include <optional>
 #include "Request.h"
 #include "Response.h"
+#include "standings.h"
 
 #include "ftxui/component/captured_mouse.hpp"
 #include "ftxui/component/component.hpp"
@@ -22,7 +23,6 @@ enum class standingType
 
 
 using namespace ftxui;
-
 class Pages
 {
 public:
@@ -30,6 +30,7 @@ public:
     void ShowInput();
     bool ShowResults(const std::string &url);
     void ShowDriver(const std::string& code) const;
+    void ShowRace(const std::string& url) const;
 
     template<typename T>
     GenData call(const std::string& S, std::string& header);
@@ -40,8 +41,9 @@ private:
     const std::string constBase = "/constructorstandings/";
     standingType currentType = standingType::Driver;
     std::vector<std::string> options = {"Driver", "Constructor"};
-
+    const std::string test = "https://api.jolpi.ca/ergast/f1/2025/last/results/";
 };
+
 
 
 

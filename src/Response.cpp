@@ -9,8 +9,17 @@ GenData DriverStandings::process(const std::string &jsonString) const
 
     for (const auto& driver : resDriver["StandingsLists"][0]["DriverStandings"])
     {
+        std::string position = "N/A";
+        if (driver.contains("position")) {
+            position = driver["position"].get<std::string>();
+        }
+        else
+        {
+            continue;
+        }
+
         driverStandings.push_back({
-            driver["position"].get<std::string>(),
+            position,
             driver["Driver"]["givenName"].get<std::string>() + " " + driver["Driver"]["familyName"].get<std::string>(),
             driver["points"].get<std::string>(),
             driver["Constructors"][0]["name"].get<std::string>(),
@@ -18,8 +27,8 @@ GenData DriverStandings::process(const std::string &jsonString) const
         });
     }
 
-    return driverStandings;
-}
+        return driverStandings;
+    }
 
 GenData ConstructorStandings::process(const std::string& jsonString) const
 {
@@ -57,23 +66,29 @@ driverDetails ResBuild::DriverDetails(const std::string & jsonString) const
     return driverData;
 }
 
-GenData RaceResults::process(const std::string &jsonString) const
+raceDetails ResBuild::RaceDetails(const std::string &jsonString) const
 {
+    raceDetails raceData;
     auto responseJson = json::parse(jsonString);
-    const auto& resResult = responseJson["MRData"]["RaceTable"]["Races"][0]; //we can call the results endpoint, we want to get the first object in the array.
 
-    std::cout << "[-- " << resResult["season"].get<std::string>() << " " << resResult["raceName"].get<std::string>() << " Results --]" <<
-    " @ " << resResult["Circuit"]["circuitName"].get<std::string>() << " - Race [" << resResult["round"].get<std::string>() << "]" << std::endl;
-
-    //responseJson["MRData"]["RaceTable"]["Races"][0]["Results"] // we can just use our resResult instead of this line to get our driver data.
-
-    for (const auto& result : resResult["Results"])
+    for (const auto& race : responseJson["MRData"]["RaceTable"]["Races"][0]["Results"])
     {
-        std::cout << "[ " << result["position"].get<std::string>() << ". " << result["Driver"]["givenName"].get<std::string>()
-        << " " << result["Driver"]["familyName"].get<std::string>()
-        << " | " << result["status"].get<std::string>()
-        << " | + " << result["points"].get<std::string>() << " pts]" << std::endl;
-    }
-}
 
+        std::string delta = "N/A";
+
+        if (race.contains("Time")) {
+            delta = race["Time"]["time"].get<std::string>();
+        }
+
+        raceData.push_back({
+        race["position"].get<std::string>(),
+        race["Driver"]["givenName"].get<std::string>() + " " + race["Driver"]["familyName"].get<std::string>(),
+        race["status"].get<std::string>(),
+        race["points"].get<std::string>(),
+        delta,
+    });
+    }
+
+    return raceData;
+}
 

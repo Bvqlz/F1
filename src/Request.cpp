@@ -25,7 +25,6 @@ std::string Request::createRequest(const std::string& url) const
         std::cerr << "curl_easy_init failed" << std::endl;
     }
 
-    //const std::string url = buildURL(year, endpoint);
     std::string response;
 
     try

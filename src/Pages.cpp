@@ -3,42 +3,100 @@
 #endif
 #include "Pages.h"
 
-    template<typename T>
-    GenData Pages::call(const std::string& S, std::string& header)
+template<typename T>
+GenData Pages::call(const std::string& S, std::string& header)
+{
+    const Request request;
+    std::unique_ptr<ResBuild> processor;
+    std::string jsonResponse = request.createRequest(S);
+    auto headerJson = json::parse(jsonResponse);
+    const auto& standingsTable = headerJson["MRData"]["StandingsTable"];
+    if (currentType == standingType::Driver) // if else blocks and ternaries that have this def, look like they default to this but the toggle changes this.
     {
-        const Request request;
-        std::unique_ptr<ResBuild> processor;
-        std::string jsonResponse = request.createRequest(S);
-        auto headerJson = json::parse(jsonResponse);
-        const auto& standingsTable = headerJson["MRData"]["StandingsTable"];
-        if (currentType == standingType::Driver) // if else blocks and ternaries that have this def, look like they default to this but the toggle changes this.
-        {
-            header = standingsTable["season"].get<std::string>() + " Drivers Championship - Round " + standingsTable["round"].get<std::string>();
-        }
-        else
-        {
-            header = standingsTable["season"].get<std::string>() + " Constructors Championship - Round " + standingsTable["round"].get<std::string>();
-        }
-
-        processor = std::make_unique<T>();
-        const GenData results = processor->process(jsonResponse);
-        return results;
+        header = standingsTable["season"].get<std::string>() + " Drivers Championship - Round " + standingsTable["round"].get<std::string>();
     }
+    else
+    {
+        header = standingsTable["season"].get<std::string>() + " Constructors Championship - Round " + standingsTable["round"].get<std::string>();
+    }
+
+    processor = std::make_unique<T>();
+    const GenData results = processor->process(jsonResponse);
+    return results;
+}
+
+
+void Pages::ShowRace(const std::string& url) const
+{
+    auto screen = ScreenInteractive::TerminalOutput();
+
+    const Request request;
+    std::unique_ptr<ResBuild> processor;
+    std::string jsonResponse = request.createRequest(url);
+    auto headerJson = json::parse(jsonResponse);
+    const auto& raceResult = headerJson["MRData"]["RaceTable"]["Races"][0];
+     std::string header = raceResult["season"].get<std::string>() + " " + raceResult["raceName"].get<std::string>() +
+          " Results @ " + raceResult["Circuit"]["circuitName"].get<std::string>() + " - Race [" + raceResult["round"].get<std::string>() + "]";
+    const raceDetails results = processor->RaceDetails(jsonResponse);
+
+    std::vector<std::string> raceRes; // add laps and team name to this.
+    for (const auto& res : results)
+    {
+        std::string line = res.position + ". " + res.name + " - " + res.status + " - " + res.delta +  " - " + res.points + "+pts";
+        raceRes.push_back(line);
+    }
+
+    int selected = 0;
+    auto RaceMenu = Menu(&raceRes, &selected);
+    auto menuButton = Button("Back to Menu", [&]
+    {
+        screen.ExitLoopClosure()();
+    }, ButtonOption::Ascii());
+
+    const auto vertComp = Container::Vertical ({
+        RaceMenu,
+        menuButton,
+    });
+
+    const auto renderer = Renderer(vertComp, [&]
+    {
+        return vbox({
+            text(header) | center,
+            separator(),
+            RaceMenu->Render() | center,
+            separator(),
+            hbox({
+                menuButton->Render() | center,
+            }) | center,
+        }) | border | size(WIDTH, EQUAL, 150) | center;
+    });
+    screen.Loop(renderer);
+}
+
+
 
 void Pages::ShowMenu(){
     auto screen = ScreenInteractive::TerminalOutput();
 
     const std::vector<std::string> entries = {
         "Find a standing",
+        "Latest Race",
         "Exit",
     };
     int selected = 0;
 
     MenuOption option;
     option.on_enter = [&] {
-        if (selected == 0) {
+        if (selected == 0)
+        {
             ShowInput(); // Takes us to second page
-        } else {
+        }
+        else if (selected == 1)
+        {
+            ShowRace(test);
+        }
+        else
+        {
             screen.ExitLoopClosure()();
         }
     };
@@ -215,3 +273,5 @@ void Pages::ShowDriver(const std::string &code) const
     });
     screen.Loop(renderer);
 }
+
+

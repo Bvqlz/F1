@@ -24,3 +24,14 @@ public:
 };
 
 using driverDetails = std::vector<DriverInstance>;
+
+struct RaceInstance
+{
+    std::string position;
+    std::string name;
+    std::string status;
+    std::string points;
+    std::string delta;
+};
+
+using raceDetails = std::vector<RaceInstance>;
