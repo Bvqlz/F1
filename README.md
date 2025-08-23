@@ -10,7 +10,7 @@ A **C++ terminal application** for viewing Formula 1 championship standings and 
   * View driver and constructor standings for any F1 season.
   * Display detailed results for specific races.
   * Interactive terminal-based user interface (TUI) built with **FTXUI**.
-  * Real-time data powered by the **Ergast F1 API**.
+  * Real-time data powered by the **Jolpica-F1 API**.
 
 -----
 
@@ -97,7 +97,7 @@ Once the application is running, use the interactive menu to navigate:
 
 ### API Credits
 
-This application uses the [**Ergast F1 API**](http://ergast.com/mrd/) for all Formula 1 data.
+This application uses the [**Jolpica-F1 API**](https://github.com/jolpica/jolpica-f1) for all Formula 1 data.
 
 
 
