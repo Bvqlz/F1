@@ -129,6 +129,22 @@ vcpkg install nlohmann-json curl ftxui --triplet x64-linux # adjust for your OS
 cmake_minimum_required(VERSION 3.20)  # Lower version
 ```
 
+### Windows Build Issues with FTXUI + MSVC
+
+**Problem**: FTXUI library has compatibility issues with MSVC compiler on Windows, causing build errors like:
+**Solution**: Use MinGW compiler instead of MSVC:
+
+1. **Install MinGW-w64** (via MSYS2 or standalone)
+2. **Remove MSVC packages and install MinGW packages:**
+   ```powershell
+   vcpkg remove nlohmann-json curl ftxui --triplet x64-windows
+   vcpkg install nlohmann-json curl ftxui --triplet x64-mingw-dynamic
+3. **Build with MinGW:**
+   ```powershell
+   cmake .. -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE="path/to/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic
+   mingw32-make
+   ```
+   
 ### Runtime Issues
 
 #### Invalid season data
