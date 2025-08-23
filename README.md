@@ -14,7 +14,7 @@ A **C++ terminal application** for viewing Formula 1 championship standings and 
 
 -----
 
-### 🛠️ Prerequisites
+### Prerequisites
 
 Before you begin, make sure you have the following installed:
 
@@ -24,7 +24,7 @@ Before you begin, make sure you have the following installed:
 
 -----
 
-### 📦 Dependencies
+### Dependencies
 
 This project uses the following libraries, which will be installed via `vcpkg`:
 
