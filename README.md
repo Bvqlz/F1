@@ -174,7 +174,6 @@ cmake_minimum_required(VERSION 3.20)  # Lower version
 
 - API calls are synchronous and may take 1-3 seconds
 - JSON parsing is optimized for the expected API response structure
-- Terminal UI is lightweight and responsive
 - No local caching - all data is fetched in real-time
 
 ## Credits
@@ -186,4 +185,4 @@ cmake_minimum_required(VERSION 3.20)  # Lower version
 
 ---
 
-**Note**: This application requires an active internet connection to fetch real-time F1 data. Historical data availability depends on the Jolpica-F1 API coverage.
+**Note**: Historical data availability depends on the Jolpica-F1 API coverage.
