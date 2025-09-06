@@ -26,7 +26,6 @@ GenData DriverStandings::process(const std::string &jsonString) const
             driver["Driver"]["driverId"].get<std::string>()
         });
     }
-
         return driverStandings;
     }
 

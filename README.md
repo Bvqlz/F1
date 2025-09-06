@@ -99,5 +99,20 @@ Once the application is running, use the interactive menu to navigate:
 
 This application uses the [**Jolpica-F1 API**](https://github.com/jolpica/jolpica-f1) for all Formula 1 data.
 
+### Main Menu
+![Main_Menu](./images/main_menu.jpg)
 
+### Season & Division Select
+![Season_Select](./images/Season_Select.jpg)
 
+### Driver Standings
+![Driver Stand](./images/Driver_Standings.jpg)
+
+### Driver Statistics
+![Driver Stats](./images/Driver_Stats.jpg)
+
+### Constructor Standings
+![Const Stand](./images/Constructor_Standings.jpg)
+
+### Latest Race
+![Last Race](./images/Race_Standings.jpg)
